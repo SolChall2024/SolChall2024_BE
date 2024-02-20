@@ -1,0 +1,32 @@
+{% extends 'kiosk/base.html' %}
+{% block main_area %}
+{% load static %}
+
+<link href="{% static 'kiosk/css/order_success.css' %}" rel="stylesheet" type="text/css">
+
+<div id="icon">
+    <i class="fas fa-solid fa-circle-check fa-6x" style="color: #e38f11;"></i>
+</div>
+
+<div id="pay_title">구글페이 결제가 <br> 완료되었습니다!</div>
+
+<hr>
+
+<div class="order-number row">
+    <div class="col-6 left">주문번호</div>
+    <div class="col-6 right">{{ latest_order.pk }}</div>
+</div>
+
+<div class="order-date row">
+    <div class="col-6 left">결제일자</div>
+    <div class="col-6 right">{{ latest_order.date|date:'Y.m.d' }}</div>
+</div>
+{% load humanize %}
+<div class="order-price row">
+    <div class="col-6 left">결제금액</div>
+    <div class="col-6 right">{{ latest_order.totalPrice|intcomma }}원</div>
+</div>
+
+
+
+{% endblock %}

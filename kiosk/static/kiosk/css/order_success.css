@@ -1,0 +1,62 @@
+#pay_title {
+    font-size: 25px;
+    font-weight: 600;
+    text-align: center;
+    margin-bottom: 10%;
+    margin-top: 20px;
+}
+
+#icon {
+    margin-top: 20%;
+    margin-left: 35%;
+}
+
+.order-number .left {
+    text-align: left;
+    font-size: 25px;
+    font-weight: 900;
+    padding-left: 80px;
+}
+
+.order-number .right {
+    text-align: right;
+    font-size: 25px;
+    font-weight: 900;
+    padding-right: 80px;
+}
+.order-number {
+    margin-bottom: 20px;
+}
+
+.order-date .left {
+    text-align: left;
+    font-size: 18px;
+    font-weight: 500;
+    padding-left: 50px;
+}
+
+.order-date .right {
+    text-align: right;
+    font-size: 18px;
+    font-weight: 500;
+    padding-right: 50px;
+}
+
+.order-date {
+    margin-bottom: 5px;
+}
+
+.order-price .left {
+    text-align: left;
+    font-size: 18px;
+    font-weight: 500;
+    padding-left: 50px;
+}
+
+.order-price .right {
+    text-align: right;
+    font-size: 23px;
+    font-weight: 600;
+    padding-right: 55px;
+    color: #e38f11;;
+}

@@ -1,0 +1,56 @@
+.login_title {
+    text-align: center;
+    font-weight: 900;
+    margin-top: 100px;
+    margin-bottom: 40px;
+}
+
+.login_form {
+    margin: 20px;
+    margin-bottom: 10px;
+}
+
+.id {
+    color: gray;
+    margin-left: 20px;
+}
+
+.password {
+    color: gray;
+    margin-left: 20px;
+}
+
+.form-control {
+    border-radius: 30px;
+}
+
+hr {
+    margin-top : 30px
+}
+
+.submit_btn {
+    background-color: #E38F11;
+    border-color: #E38F11;
+    border-radius: 30px;
+}
+
+h5 {
+    margin: 7px;
+}
+
+.url_area {
+    text-align: right;
+}
+
+.url_label {
+    font-size: 11px;
+    font-weight: 600;
+    display: inline-block;
+}
+
+.url_link {
+    font-size: 11px;
+    text-decoration: none;
+    margin-left: 10px;
+    margin-right: 20px;
+}

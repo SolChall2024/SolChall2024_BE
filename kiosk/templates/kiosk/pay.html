@@ -1,0 +1,14 @@
+{% extends 'kiosk/base.html' %}
+{% block main_area %}
+{% load static %}
+
+<link href="{% static 'kiosk/css/pay.css' %}" rel="stylesheet" type="text/css">
+
+<div id="pay_title">결제 수단을 선택하세요</div>
+<button type="button" class="btn btn-primary btn-lg pay">
+    <div id="icon"><i class="fas fa-solid fa-credit-card fa-3x" style="color: #ffffff;"></i><br></div>
+    <span>구글페이</span>
+</button>
+<button type="button" class="btn btn-primary btn-lg cancel">돌아가기</button>
+
+{% endblock %}

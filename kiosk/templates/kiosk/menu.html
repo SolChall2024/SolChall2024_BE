@@ -1,0 +1,105 @@
+{% extends 'kiosk/base.html' %}
+{% block main_area %}
+{% load static %}
+<link href="{% static 'kiosk/css/menu.css' %}" rel="stylesheet" type="text/css">
+
+
+<!-- 카테고리바 -->
+<div class="custom-tabs-container">
+    <ul class="nav nav-tabs" id="myTab" role="tablist">
+
+        <!-- 전체 -->
+        <li class="nav-item" role="presentation">
+            <button class="nav-link active" id="home-tab" data-bs-toggle="tab" data-bs-target="#home" type="button" role="tab" aria-controls="home" aria-selected="true">전체</button>
+        </li>
+
+        {% for c in categories %}
+        <!-- 사용자 정의 카테고리 -->
+        <!-- 문제 ==> 기호가 껴 있으면 카테고리 id를 끝까지 인식 못해 카테고리에 맞는 메뉴 출력이 안됨 -->
+        <li class="nav-item" role="presentation">
+            <button class="nav-link" id="{{ c.name }}-tab" data-bs-toggle="tab" data-bs-target="#{{ c.name }}" type="button" role="tab" aria-controls="{{ c.name }}" aria-selected="false">{{ c.name }}</button>
+        </li>
+        {% endfor %}
+    
+
+    </ul>
+</div>
+
+
+<!-- 카테고리 선택 후 메뉴 -->
+<div class="container1">
+    <div class="tab-content" id="myTabContent">
+
+        <!-- 전체 탭 메뉴 버튼 -->
+        <div class="tab-pane show active" id="home" role="tabpanel" aria-labelledby="home-tab">
+            <ul class="cardUl">
+            {% for m in menus %}
+            <a href="{% url 'cart' %}" id="mod_menu_url">
+                <div class="card text-center" style="width: 113px;">
+                    <div class="img">
+                        <img src="{% static 'americanoImg.png' %}" class="card-img-top" alt="menu_img" id="menu_img">
+                    </div>
+                    <div class="card-body">
+                        <p class="card-text">{{ m.name }}</p>
+                    <p class="card-text price">{{ m.price }}원</p>
+                    </div>
+                </div>
+            </a>
+              {% endfor %}
+
+              <!-- 메뉴추가 버튼 -->
+              <a href="{% url 'cart' %}" id="add_menu_url">
+              <div class="card text-center" style="width: 113px;">
+                <div class="img">
+                    <i class="fas fa-light fa-circle-plus fa-3x img" style="color: #e38f11;"></i>
+                </div>
+                <div class="card-body">
+                    <h5 class="card-title">메뉴 추가</h5>
+                </div>
+              </div>
+            </a>
+            </ul>
+        </div>
+        
+        <!-- 사용자정의 탭 메뉴 버튼 -->
+        {% for c in categories %}
+            <div class="tab-pane" id="{{ c.name }}" role="tabpanel" aria-labelledby="{{ c.name }}-tab">
+                <ul class="cardUl">
+                {% for m in menus %}
+                    {% if m.categoryId == c %}
+                        <a href="{% url 'cart' %}" id="mod_menu_url">
+                            <div class="card text-center" style="width: 113px;">
+                                <div class="img">
+                                    <img src="{% static 'americanoImg.png' %}" class="card-img-top" alt="menu_img" id="menu_img">
+                                </div>
+                                <div class="card-body">
+                                    <p class="card-text">{{ m.name }}</p>
+                                    <p class="card-text price">{{ m.price }}원</p>
+                                </div>
+                            </div>
+                        </a>
+                    {% endif %}
+                {% endfor %}
+
+                    <!-- 메뉴추가 버튼 -->
+                    <a href="{% url 'cart' %}" id="add_menu_url">
+                        <div class="card text-center" style="width: 113px;">
+                        <div class="img">
+                            <i class="fas fa-light fa-circle-plus fa-3x img" style="color: #e38f11;"></i>
+                        </div>
+                        <div class="card-body">
+                            <h5 class="card-title">메뉴 추가</h5>
+                        </div>
+                        </div>
+                    </a>
+                </ul>
+            </div>
+        {% endfor %}
+
+
+    </div>    
+</div>
+  
+
+
+{% endblock %}

@@ -1,0 +1,135 @@
+{% extends 'kiosk/base.html' %}
+{% block main_area %}
+{% load static %}
+    <link href="{% static 'kiosk/css/cart.css' %}" rel="stylesheet" type="text/css">
+
+    <div class="cart_title">
+        <h2>나의</h2>
+        <h2>주문목록</h2>
+    </div>
+
+    {% for m in carts %}
+    <div id="cd" data-cart-id="{{ m.cartId }}">
+    <div class="card mb-3" style="max-width: 390px; border-radius: 10px; overflow: hidden;">
+        <div class="row">
+
+            <!-- 이미지 -->
+            <div class="col-4 img">
+                <img src="{% static 'kiosk/img/ex1.jpg' %}" id="coffee_img" class="img-fluid rounded-start" alt="...">
+            </div>
+
+            <!-- 메뉴 이름, 옵션 -->
+            <div class="col">
+                <div class="card-body p-0">
+                    <b class="card-title">{{ m.menuId.name }}</b>
+
+                    <p class="card-text m-0">
+                        <div class="option">
+                            <div style="display: inline-block;">{{ m.options|linebreaksbr }}</div>
+                        </div>
+                    </p>
+                </div>
+            </div>
+
+            <!-- 삭제버튼 -->
+            <div class="col del">
+                <button type="button" class="btn btn-secondary btn-sm del-btn">삭제</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 각각 가격 -->
+    {% load humanize %}
+    <div class="each-price row">
+        <div class="col-8">가격</div>
+        <div class="col-4 right">{{ m.price|intcomma }}원</div>
+    </div>
+    </div>
+    {% endfor %}
+
+
+    <!-- 여기서부터 총합 -->
+    <div class="row" id="total_area">
+        {% if total_quantity == 0 %}
+            <div class="empty">선택된 메뉴가 없습니다</div>
+        {% else %}
+            <hr>
+
+            <div class="total row">
+                <div class="col-8">총 수량</div>
+                <div class="col-4 right" id="total_quantity">{{ total_quantity }}</div>
+            </div>
+            <div class="total row">
+                <div class="col-8">총 가격</div>
+                <div class="col-4 right" id="total_price">
+                    <!-- None원이라고 출력되는거 방지 -->
+                    {% if total_price %}
+                        {{ total_price|intcomma }}원
+                    {% else %}
+                        0원
+                    {% endif %}
+                </div>
+            </div>
+             <!-- 취소, 결제버튼 -->
+            <div class="col-6" style="padding-right: 8px;">
+                <a class="btn btn-primary cancel" href="#" role="button" id="order_cancel_button">주문취소</a>
+            </div>
+            <div class="col-6" style="padding-left: 8px;">
+                <a class="btn btn-primary order" href="{% url 'pay' %}" role="button" id="pay_button">결제</a>
+            </div>
+        {% endif %}
+    </div>
+   
+
+    <!-- 제이쿼리 CDN -->
+    <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+
+    <script>
+    window.onload = function(){
+            if (location.href.indexOf('reloaded')==-1) location.replace(location.href+'?reloaded');
+            //if (parent.location.href.indexOf('reloaded')==-1) parent.location.replace(parent.location.href+'?reloaded');
+        }
+        $(document).ready(function () {
+            $('.del-btn').on('click', function () {
+                var card = $(this).closest('#cd');
+
+                var cardId = card.data('cart-id');
+                console.log(cardId);
+                console.log(card);
+                $.ajax({
+                    type: 'POST',
+                    url: 'del/',
+                    data: { 'card_id': cardId },
+                    success: function (data) {
+                        console.log(data.message);
+
+                        // 총 수량, 총 가격 변경
+                        const quanity = document.getElementById('total_quantity');
+                        const price = document.getElementById('total_price');
+
+                        quanity.textContent = data.total_quantity;
+                        if(data.total_quantity == 0){
+                            const total_area = document.getElementById('total_area');
+                            total_area.textContent = '';
+                            const newDiv = document.createElement('div');
+                            const newText = document.createTextNode('선택된 메뉴가 없습니다')
+                            newDiv.appendChild(newText);
+                            newDiv.classList.add('empty');
+
+                            total_area.appendChild(newDiv);
+                        } else{
+                            price.textContent = data.total_price + '원';
+                        }
+                    },
+                    error: function (error) {
+                        console.error('error_test', error);
+                    }
+                });
+
+                card.remove();
+            });
+        });
+    </script>
+
+    
+{% endblock %}

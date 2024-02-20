@@ -1,0 +1,64 @@
+body {
+    margin: 0px;
+    width: 100%;
+    height: 100%;
+}
+
+.upload {
+    background-color: rgb(201, 201, 201);
+    width: 100%;
+    height: 250px;
+}
+
+.set_name_box {
+    border: none;
+    outline: none;
+    background-color: rgb(201, 201, 201);
+    color: white;
+    font-size: 25px;
+    font-weight: 900;
+    padding-left: 20px;
+    padding-bottom: 30px;
+}
+
+.set_name_box:focus {
+    outline: none;
+    border: none;
+}
+
+.top_input_box {
+    background-color: rgb(201, 201, 201);
+    width: 100%;
+}
+
+.top_area {
+    position: relative;
+}
+
+.bottom_area {
+    border-top-left-radius: 25px;
+    border-top-right-radius: 25px;
+    padding-top: 10px;
+    height: auto;
+    position: relative; top: -20px;
+    background-color: white;
+}
+
+#drag_bar {
+    height: 4px;
+    width: 80px;
+    margin: 0 auto;
+    border-radius: 5px;
+}
+
+.row {
+    padding-top: 20px;
+}
+
+/* #price_label {
+    text-align: center;
+    background-color: rgb(222, 222, 222);
+    border-radius: 5px;
+    width: 100px;
+    margin-left: 20px;
+} */

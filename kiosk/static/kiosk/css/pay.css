@@ -1,0 +1,36 @@
+#pay_title {
+    font-size: 25px;
+    font-weight: 600;
+    text-align: center;
+    margin-top: 30%;
+    margin-bottom: 10%;
+}
+
+.pay {
+    background-color: #E38F11;
+    border-color: #E38F11;
+    color: white;
+    width: 160px;
+    font-size: 25px;
+    font-weight: 900;
+    border-radius: 15px;
+    padding-top: 25px;
+    padding-bottom: 10px;
+    margin-left: 28%;
+}
+
+.cancel {
+    background-color: rgb(199, 199, 199);
+    border-color: #EDEFFF;
+    color: black;
+    font-size: 25px;
+    font-weight: 900;
+    width: 160px;
+    border-radius: 15px;
+    margin-left: 28%;
+    margin-top: 30px;
+}
+
+#icon {
+    margin-bottom: 20px;
+}

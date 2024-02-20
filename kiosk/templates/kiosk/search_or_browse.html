@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+
+{% load static %}
+
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Landing Page</title>
+    <style>
+
+        body {
+            background-color: rgb(237, 237, 237);
+        }
+        .buttonSearch {
+            cursor: pointer;
+            background-color: transparent;
+            border: none;
+            padding: 0;
+            position: relative;
+            left: 30px;
+            top: 560px;
+
+            width: 24px;
+            height: 24px;
+        }
+
+        .buttonBrowse{
+            cursor: pointer;
+            background-color: transparent;
+            border: none;
+            padding: 0;
+            position: relative;
+            left: 190px;
+            top: 560px;
+
+            width: 24px;
+            height: 24px;
+        }
+    </style>
+</head>
+<body>
+
+    <a href="{% url 'search' %}">
+        <button class="buttonSearch">
+            <img src="{% static 'search.svg' %}" alt="검색하기">
+        </button>
+    </a>
+
+
+    <a href="{% url 'browse' %}">
+        <button class="buttonBrowse">
+            <img src="{% static 'browse.svg' %}" alt="메뉴 둘러보기">
+        </button>
+    </a>
+
+</body>
+</html>

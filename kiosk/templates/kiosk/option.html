@@ -1,0 +1,451 @@
+<!DOCTYPE html>
+{% load static %}
+<html lang="ko">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Menu Options</title>
+    <style>
+        body {
+            margin: 0px;
+            width: 100%;
+        }
+
+        .container {
+            margin : 20px;
+        }
+
+        .selected {
+            background-color: lightblue;
+        }
+
+        .OptionSelectTxt {
+            font-size:25px;
+        }
+
+        .option-box {
+            display: flex;
+            border: 0px;
+            border-radius: 10px;
+            padding: 10px;
+            margin-bottom: 10px;
+            background-color: #E9ECEF;
+            font-size:20px;
+        }
+        .optionName {
+            width:45%;
+            margin-left:10px;
+            font-weight: bold;
+        }
+
+        .no-contents-optionName {
+            width: auto;
+            margin-left:10px;
+            font-weight: bold;
+        }
+
+        .content-boxes {
+            display: flex;
+            width:60%;
+            align-items: center;
+            justify-content: right;
+        }
+
+        .content-btn {
+            cursor: pointer;
+            /* display: inline-block;*/
+            align-items:center;
+            line-height : 36px;
+            text-align : center;
+            font-weight: 500;
+            width: 80px;
+            height: 36px;
+            padding: 5px 10px;
+            border: 0px;
+            border-radius: 10px;
+            margin-right: 5px;
+            background-color: #D9D9D9;
+        }
+
+        /* 선택된 버튼의 스타일 */
+        .content-btn.selected {
+            background-color: #F3A228;
+        }
+
+
+        .optionDetailImg {
+            width: 100%;
+            height: 250px;
+        }
+
+        .option_threeButtons{
+            display: flex;
+            justify-content: space-around; /* 카테고리 버튼들을 가로로 균등하게 배치 */
+            align-items: center;
+            margin-top: 30px;
+        }
+
+        .option_checkButton{
+            width:91px;
+            height:50px;
+            padding: 5px 10px;
+            border: 0px;
+            border-radius: 15px;
+            background-color: #F3A228;
+            font-size:15px;
+            font-weight:600;
+        }
+
+        .quantity-controls {
+            display: flex;
+            width: 100%;
+        }
+        #quantity-display {
+            border: 0px;
+            background-color: #E9ECEF;
+            font-size:18px;
+            font-weight: bold;
+            width: 30%;
+            line-height: 25px;
+            margin-left: 20px;
+        }
+
+        .option-quantity-input {
+            border: 0px;
+            background-color: #E9ECEF;
+            font-size:18px;
+            font-weight: bold;
+            width: 30%;
+            line-height: 25px;
+            margin-left: 20px;
+        }
+
+        .quantity-controls-txt {
+            display: flex;
+            border: 0px;
+            border-radius: 10px;
+            padding: 10px;
+            margin-bottom: 10px;
+            background-color: #E9ECEF;
+            font-size:20px;
+            font-weight: bold;
+            /* weight: 80%; */
+        }
+
+        .quantity-controls-txt-d {
+            display: flex;
+            border: 0px;
+            border-radius: 10px;
+            padding: 10px;
+            margin-bottom: 10px;
+            background-color: #E9ECEF;
+            font-size:20px;
+            font-weight: bold;
+            /* weight: 80%; */
+        }
+
+        .quantity-label {
+            margin-left: 10px;
+            width: auto;
+        }
+
+        .quantity-controls-buttons {
+            display: flex;
+            justify-content: space-around;
+            align-items:center;
+            /* weight: 20%; */
+        }
+
+        .quantity-btn {
+            display: flex;
+            justify-content: space-around;
+            border: 0px;
+            border-radius: 5px;
+            background-color: #A9A9A9;
+            width:25px;
+            height:25px;
+            font-size: 20px;
+            margin-left: 15px;
+        }
+
+        .option-quantity-btn {
+            display: flex;
+            justify-content: space-around;
+            border: 0px;
+            border-radius: 5px;
+            background-color: #A9A9A9;
+            width:25px;
+            height:25px;
+            font-size: 20px;
+            margin-left: 15px;
+        }
+    </style>
+</head>
+</head>
+<body>
+    <img src="{% static 'CoffeeImg.jpeg' %}" alt="dddd" class="optionDetailImg">
+
+
+    <div class="container">
+    <h1>{{ menu.name }}</h1>
+
+    <p class="OptionSelectTxt">옵션 선택</p>
+
+    <form id="add-to-cart-form" method="POST" action="{% url 'add_to_cart' %}" onsubmit="updateSelectedContent()">
+        {% csrf_token %}
+        <input type="hidden" name="menu_id" value="{{ menu.pk }}">
+        <input type="hidden" name="selected_content" id="selected-content" value="">
+        <input type="hidden" name="quantity" id="quantity" value="1">
+        <input type="hidden" name="price" id="price" value="{{ menu.price }}">
+
+        {% for option in options %}
+                <!-- contents가 있는 경우 -->
+                {% if option.contents.all %}
+                <div class="option-box" id="option_{{ option.optionId }}">
+                    <p class="optionName" id="option_name_{{ option.optionId }}">{{ option.option }} </p>
+                    <div class="content-boxes">
+                    {% for content in option.contents.all %}
+                        <label class="content-btn">
+                            <input type="radio" name="contentRadioBtn{{ option.optionId }}" id="option_content_{{ content.content }}" value="{{ content.content }}">
+                            {{ content.content }}
+                        </label>
+                        <div style="display: none;" id="price_{{ option.optionId }}">{{ option.price }}</div>
+                    {% endfor %}
+                    </div>
+                </div>
+
+                {% else %}
+
+                <!-- contents가 없는 경우 -->
+                <div class="quantity-controls">
+                    <div class="quantity-controls-txt" id="option_{{ option.optionId }}">
+                        <p class="no-contents-optionName" id="option_name_{{ option.optionId }}">{{ option.option }} :</p>
+                        <input type="text" class="option-quantity-input" id="option_quantity_display_{{ option.optionId }}" value="0" readonly>
+                        <div style="display: none;" id="price_{{ option.optionId }}">{{ option.price }}</div>
+                    </div>
+
+                    <div class="quantity-controls-buttons">
+                        <button type="button" class="option-quantity-btn increase-quantity" id="option-increase-quantity-{{ option.optionId }}">+</button>
+                        <button type="button" class="option-quantity-btn decrease-quantity" id="option-decrease-quantity-{{ option.optionId }}">-</button>
+                    </div>
+                </div>
+                {% endif %}
+
+        {% endfor %}
+
+        <div class="quantity-controls">
+            <div class="quantity-controls-txt-d">
+                <div class="quantity-label"> 수량 : </div>
+                <input type="text" class="quantity-input" id="quantity-display" value="1" readonly>
+            </div>
+
+            <div class="quantity-controls-buttons">
+                <button type="button" class="quantity-btn" id="increase-quantity">+</button>
+                <button type="button" class="quantity-btn" id="decrease-quantity">-</button>
+            </div>
+        </div>
+
+        <div class="option_threeButtons">
+            <button type="reset" class="option_checkButton" onclick="history.back()">취소</button>
+            <button class="option_checkButton" id="cartButton">담기</button>
+            <button class="option_checkButton" id="paymentButton">결제하기</button>
+        </div>
+    </form>
+
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+    <script>
+        const contentButtons = document.querySelectorAll('.content-btn');
+        const addToCartForm = document.getElementById('add-to-cart-form');
+        const quantityDisplay = document.getElementById('quantity-display');
+        const decreaseButton = document.getElementById('decrease-quantity');
+        const increaseButton = document.getElementById('increase-quantity');
+        const priceInput = document.getElementById('price');
+        let min_quantity = 0;
+
+
+        // 함수로 수량 감소 및 증가 처리
+        function updateQuantity(displayElement, hiddenFieldId, operation) {
+            let quantity = parseInt(displayElement.value);
+
+            if (operation === 'decrease' && quantity > min_quantity) {
+                quantity--;
+            } else if (operation === 'increase') {
+                quantity++;
+            }
+
+            displayElement.value = quantity;
+
+            // hidden field를 찾을 때 null 체크
+            const hiddenField = document.getElementById(hiddenFieldId);
+            if (hiddenField) {
+                hiddenField.value = quantity;
+            }
+        }
+
+
+        // 이벤트 핸들러 등록
+        decreaseButton.addEventListener('click', () => {
+            min_quantity = 1;
+            updateQuantity(quantityDisplay, 'quantity', 'decrease');
+
+        });
+
+        increaseButton.addEventListener('click', () => {
+            updateQuantity(quantityDisplay, 'quantity', 'increase');
+        });
+
+
+
+        // ID가 다른 옵션의 수량을 각각 따로 계산
+        const optionQuantityDisplays = document.querySelectorAll('.option-quantity-input');
+
+        optionQuantityDisplays.forEach(display => {
+            const optionId = display.id.split('_').pop();
+            const increaseButton = document.getElementById(`option-increase-quantity-${optionId}`);
+            const decreaseButton = document.getElementById(`option-decrease-quantity-${optionId}`);
+            // 가격 관련 변수
+            const priceTag = document.getElementById(`price_${optionId}`)
+            let defaultPrice = parseInt(priceInput.value);
+            let dp = parseInt(priceInput.value);
+            let plus_or_minus_Price = parseInt(priceTag.innerText);
+
+
+            increaseButton.addEventListener('click', () => {
+                updateQuantity(display, `option-quantity-${optionId}`, 'increase');
+
+                // 추가 금액이 있는 수량 옵션에 대한 가격 변경(+)
+                defaultPrice += plus_or_minus_Price;
+                priceInput.value = defaultPrice;
+                console.log(priceInput.value);
+            });
+
+            decreaseButton.addEventListener('click', () => {
+                updateQuantity(display, `option-quantity-${optionId}`, 'decrease');
+
+                // 추가 금액이 있는 수량 옵션에 대한 가격 변경(-)
+
+
+                if(priceInput.value > dp){
+                    defaultPrice -= plus_or_minus_Price;
+                }
+
+                priceInput.value = defaultPrice;
+                console.log(priceInput.value);
+            });
+        });
+
+        addToCartForm.addEventListener('submit', (event) => {
+            event.preventDefault();
+            const formData = new FormData(addToCartForm);
+            fetch(addToCartForm.action, {
+                method: 'POST',
+                body: formData,
+            })
+            .then(response => {
+                if (response.ok) {
+                    alert('장바구니에 추가되었습니다.');
+                    // 여기에 장바구니 갱신 등의 동작을 추가할 수 있습니다.
+                    console.log(formData);
+                } else {
+                    alert('장바구니 추가에 실패했습니다.');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+            });
+        });
+
+
+
+        // 옵션 가공 및 가격 수정
+        function updateSelectedContent() {
+
+            let optionText = '';
+
+            // 컨텐트 있는 옵션
+            const selectedOptions = document.querySelectorAll('.option-box');
+
+            selectedOptions.forEach(option => {
+                const optionId = option.id.split('_').pop();
+                const optionName = document.getElementById(`option_name_${optionId}`);
+                const optionNameValue = optionName.textContent || optionName.innerText;
+                // 가격 관련 변수
+                const priceTag = document.getElementById(`price_${optionId}`)
+                let newPrice = parseInt(priceTag.innerText);
+                let defaultPrice = parseInt(priceInput.value);
+
+                const selectedRadio = option.querySelector('input[type="radio"]:checked');
+                if (selectedRadio) {
+                    const selectedValue = selectedRadio.value;
+                    console.log(`선택된 값: ${selectedValue}`);
+
+
+                    optionText += optionNameValue + ": " + selectedValue + '\n';
+
+                    // 추가 금액이 있는 라디오 버튼 옵션에 대한 가격 변경(+)
+                    defaultPrice += newPrice;
+                    priceInput.value = defaultPrice;
+
+                } else {
+                    console.log('라디오 버튼이 선택되지 않았습니다.');
+                }
+            })
+
+
+            // 컨텐트 없는 옵션
+            const no_selectedOptions = document.querySelectorAll('.quantity-controls-txt');
+
+            no_selectedOptions.forEach(option => {
+                const no_optionId = option.id.split('_').pop();
+
+                const no_optionName = document.getElementById(`option_name_${no_optionId}`);
+                const no_optionNameValue = (no_optionName.textContent || no_optionName.innerText).replace(':', '');
+
+
+                const no_optionContent = document.getElementById(`option_quantity_display_${no_optionId}`);
+
+                const no_quantityValue = no_optionContent.value
+
+
+
+                optionText += no_optionNameValue + ": " + no_quantityValue + '\n';
+            })
+
+
+            // input value에 붙이기
+            const selectedContentInput = document.getElementById('selected-content');
+            const selectedContentValue = optionText;
+            selectedContentInput.value = selectedContentValue;
+
+
+            // 전체 수량 변경
+            const quantityValue = quantityDisplay.value;
+            const quantityInput = document.getElementById('quantity');
+            quantityInput.value = quantityValue;
+
+            console.log(quantityInput.value);
+
+            return true;
+        }
+
+        $(document).ready(function () {
+            $("#paymentButton").click(function (event) {
+            // 폼 제출
+            $("#add-to-cart-form").submit();
+
+            // 지정한 페이지로 이동
+            window.location.href = "/cart/";
+            });
+
+            $("#cartButton").click(function (event) {
+            // 폼 제출
+            $("#add-to-cart-form").submit();
+
+            // 지정한 페이지로 이동
+            window.location.href = "/browse/";
+            });
+        });
+    </script>
+</body>
+</html>

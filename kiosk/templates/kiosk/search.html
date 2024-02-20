@@ -1,0 +1,154 @@
+{% extends 'kiosk/base.html' %}
+{% load static %}
+
+{% block main_area %}
+
+    <style>
+
+         body {
+            background-color: rgb(237, 237, 237);
+        }
+
+
+        .buttonMic {
+            cursor: pointer;
+            background-color: transparent;
+            border: none;
+            padding: 0;
+            position: fixed;
+            left: calc(50% - 50px); /* 가로 가운데 정렬 */
+
+        }
+
+        .recording { /* 녹음 중일 때의 스타일 */
+            border: 5px solid;
+            border-color: red;
+            border-radius: 5px;
+        }
+
+        .searchTxt{
+            font-size:32px;
+            font-weight:bold;
+            text-align:center;
+            margin-top:25%;
+        }
+
+        #micTextField {
+            display: flex;
+            justify-content: center;
+            width: 100%;
+            height: 40px;
+            background-color: white;
+            border-radius: 5px;
+            margin-top: 250px;
+        }
+
+        #transcription {
+            background-color: white;
+        }
+
+        #moveButtonDiv {
+        display: flex;
+            justify-content: center;
+
+        }
+
+        #moveButton {
+            margin-top: 30px;
+            border: 0;
+            background-color: #E38F11;
+            border-radius: 5px;
+            font-size: 20px;
+        }
+    </style>
+    <p class="searchTxt">주문하고 싶은 <br/>
+    메뉴를 말해주세요</p>
+
+
+    <div>
+    <button class="buttonMic" id="startSpeechRecognition">
+        <img src="{% static 'micButton.svg' %}" alt="음성인식하기">
+    </button>
+    </div>
+
+    <div id="micTextField">
+        <div id="transcription"></div>
+    </div>
+    <div id="moveButtonDiv">
+    <button id="moveButton" alter="검색">검색</button>
+    </div>
+    <script>
+        const recognition = new webkitSpeechRecognition();
+        recognition.continuous = false;
+        recognition.interimResults = false;
+
+        // 음성 인식 설정
+        recognition.continuous = false;
+        recognition.lang = 'ko-KR';
+        recognition.interimResults = false;
+        recognition.maxAlternatives = 1;
+
+
+        const buttonMic = document.getElementById('startSpeechRecognition');
+        const moveButton = document.getElementById('moveButton');
+        let isRecording = false; // 녹음 상태를 추적하는 변수
+
+
+        buttonMic.addEventListener('click', () => {
+           if (isRecording) {
+                recognition.stop();
+                buttonMic.classList.remove('recording'); // 녹음 중 스타일 제거
+            } else {
+                recognition.start();
+                buttonMic.classList.add('recording'); // 녹음 중 스타일 추가
+            }
+            isRecording = !isRecording; // 버튼 상태 토글
+        });
+
+        recognition.onstart = () => {
+            console.log('Recording started');
+            moveButton.disabled = true;
+        };
+
+        recognition.onend = () => {
+            console.log('Recording stopped');
+            moveButton.disabled = false;
+        };
+
+recognition.onresult = (event) => {
+    //const result = event.results[0][0].transcript;
+    let result = event.results[0][0].transcript;
+    result = result.replace(/\.$/, "");
+        document.getElementById('transcription').innerText = result;
+    };
+
+    moveButton.addEventListener('click', () => {
+    const transcription = document.getElementById('transcription').innerText;
+    // Send an AJAX request to the server
+    fetch('/get_menu_id/', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': '{{ csrf_token }}'
+        },
+        body: JSON.stringify({ transcription: transcription })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.menu_ids && data.menu_ids.length > 0) {
+            // Redirect to the option.html page for the first menu_id in the list
+            window.location.href = `/menu/${data.menu_ids[0]}/`;
+        } else {
+            console.error('Menu not found');
+            // Handle the case where no menu was found
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+    });
+});
+
+
+    </script>
+
+{% endblock %}

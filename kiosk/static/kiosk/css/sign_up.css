@@ -1,0 +1,73 @@
+.sign_up_title {
+    text-align: center;
+    font-weight: 900;
+    margin-top: 100px;
+    margin-bottom: 40px;
+}
+
+.sign_up_form {
+    margin: 20px;
+    margin-bottom: 10px;
+}
+
+.id {
+    color: gray;
+    margin-left: 20px;
+}
+
+.row {
+    margin-right: 0px;
+}
+
+.col-8 {
+    padding-right: 0px;
+}
+
+.col-4 {
+    padding-left: 8px;
+}
+
+.overlap_btn {
+    background-color: #E38F11;
+    border-radius: 30px;
+    border-color: #E38F11;
+    width: 100px;
+}
+
+.password1 {
+    color: gray;
+    margin-left: 20px;
+}
+
+.password2 {
+    color: gray;
+    margin-left: 20px;
+}
+
+.storeName {
+    color: gray;
+    margin-left: 20px;
+}
+
+.phoneNumber {
+    color: gray;
+    margin-left: 20px;
+}
+
+.form-control {
+    border-radius: 30px;
+}
+
+hr {
+    margin-top : 30px;
+}
+
+h5{
+    margin: 0px;
+}
+
+.submit_btn {
+    background-color: #E38F11;
+    border-color: #E38F11;
+    border-radius: 30px;
+}
