@@ -22,7 +22,7 @@ class Menu(models.Model):
     name = models.CharField(max_length=255)
     optionId = models.ManyToManyField('Option', blank=True)
     price = models.IntegerField()
-    menuImgUrl = models.TextField(null=True, blank=True)
+    menuImg = models.ImageField(upload_to='kiosk/menu_images/%Y/%m/%d/', null=True, blank=True)
     status = models.IntegerField(default=1)
 
     def __str__(self):
@@ -30,17 +30,19 @@ class Menu(models.Model):
 
 class Option(models.Model):
     optionId = models.BigAutoField(primary_key=True)
-    #menuId = models.ForeignKey(Menu, on_delete=models.CASCADE)
+    menuId = models.ForeignKey(Menu, on_delete=models.CASCADE)
     option = models.CharField(max_length=255)
     contents = models.ManyToManyField('OptionContent', blank=True)
     price = models.IntegerField()
     status = models.IntegerField(default=1)
+    button = models.BooleanField(default=1)
 
     def __str__(self):
         return f'{self.option}'
 
 class OptionContent(models.Model):
-    content = models.CharField(max_length=255)
+    content = models.CharField(max_length=255, null=True)
+    price = models.IntegerField()
 
     def __str__(self):
         return f'{self.content}'

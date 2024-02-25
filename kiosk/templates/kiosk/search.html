@@ -10,13 +10,16 @@
         }
 
 
+
+
         .buttonMic {
             cursor: pointer;
             background-color: transparent;
             border: none;
             padding: 0;
             position: fixed;
-            left: calc(50% - 50px); /* 가로 가운데 정렬 */
+            /* left: calc(50% - 50px); 가로 가운데 정렬 */
+            margin-left: 29%;
 
         }
 
@@ -65,11 +68,9 @@
     메뉴를 말해주세요</p>
 
 
-    <div>
     <button class="buttonMic" id="startSpeechRecognition">
         <img src="{% static 'micButton.svg' %}" alt="음성인식하기">
     </button>
-    </div>
 
     <div id="micTextField">
         <div id="transcription"></div>
@@ -133,18 +134,18 @@ recognition.onresult = (event) => {
         },
         body: JSON.stringify({ transcription: transcription })
     })
-    .then(response => response.json())
-    .then(data => {
-        if (data.menu_ids && data.menu_ids.length > 0) {
-            // Redirect to the option.html page for the first menu_id in the list
-            window.location.href = `/menu/${data.menu_ids[0]}/`;
-        } else {
-            console.error('Menu not found');
-            // Handle the case where no menu was found
+    .then(response => {
+        if (response.status==404) {
+            throw new Error('menu not found');
         }
+        return response.json();
+    })
+    .then(data => {
+            window.location.href = `/menu/${data.menu_ids}/`;
     })
     .catch(error => {
         console.error('Error:', error);
+        alert('찾으시는 메뉴가 없습니다')
     });
 });
 

@@ -7,16 +7,16 @@
 }
 
 .pay {
-    background-color: #E38F11;
-    border-color: #E38F11;
-    color: white;
+    /* background-color: #E38F11; */
+    /* border-color: #E38F11; */
+    /* color: white; */
     width: 160px;
     font-size: 25px;
     font-weight: 900;
-    border-radius: 15px;
+    /* border-radius: 15px; */
     padding-top: 25px;
     padding-bottom: 10px;
-    margin-left: 28%;
+    margin-left: 17%;
 }
 
 .cancel {

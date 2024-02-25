@@ -15,7 +15,7 @@
 
             <!-- 이미지 -->
             <div class="col-4 img">
-                <img src="{% static 'kiosk/img/ex1.jpg' %}" id="coffee_img" class="img-fluid rounded-start" alt="...">
+                <img src="{% static 'americanoImg.png' %}" id="coffee_img" class="img-fluid rounded-start" alt="...">
             </div>
 
             <!-- 메뉴 이름, 옵션 -->
@@ -79,17 +79,23 @@
             </div>
         {% endif %}
     </div>
-   
+
 
     <!-- 제이쿼리 CDN -->
     <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
 
     <script>
-    window.onload = function(){
+
+        window.onload = function(){
             if (location.href.indexOf('reloaded')==-1) location.replace(location.href+'?reloaded');
             //if (parent.location.href.indexOf('reloaded')==-1) parent.location.replace(parent.location.href+'?reloaded');
         }
+
+
         $(document).ready(function () {
+
+            // location.reload();
+
             $('.del-btn').on('click', function () {
                 var card = $(this).closest('#cd');
 
@@ -131,5 +137,5 @@
         });
     </script>
 
-    
+
 {% endblock %}

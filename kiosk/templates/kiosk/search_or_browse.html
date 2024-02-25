@@ -41,18 +41,14 @@
 </head>
 <body>
 
-    <a href="{% url 'search' %}">
         <button class="buttonSearch">
-            <img src="{% static 'search.svg' %}" alt="검색하기">
+            <img src="{% static 'search.svg' %}" alt="검색하기" onclick="location.href=`{% url 'search' %}`">
         </button>
-    </a>
 
 
-    <a href="{% url 'browse' %}">
         <button class="buttonBrowse">
-            <img src="{% static 'browse.svg' %}" alt="메뉴 둘러보기">
+            <img src="{% static 'browse.svg' %}" alt="메뉴 둘러보기" onclick="location.href=`{% url 'browse' %}`">
         </button>
-    </a>
 
 </body>
 </html>

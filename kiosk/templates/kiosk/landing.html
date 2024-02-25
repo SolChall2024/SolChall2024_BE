@@ -42,17 +42,16 @@
 <body>
 
 
-    <a href="{% url 'search_or_browse' %}">
-        <button class="buttonHere">
-            <img src="{% static 'here.svg' %}" alt="매장">
-        </button>
-    </a>
+    <button class="buttonHere" onclick="location.href=`{% url 'search_or_browse' %}`">
+        <img src="{% static 'here.svg' %}" alt="매장">
+     </button>
 
-    <a href="{% url 'search_or_browse' %}">
-        <button class="buttonTogo">
-            <img src="{% static 'togo.svg' %}" alt="포장">
-        </button>
-    </a>
+
+    <button class="buttonTogo" onclick="location.href=`{% url 'search_or_browse' %}`">
+        <img src="{% static 'togo.svg' %}" alt="포장">
+    </button>
+
 
 </body>
+
 </html>

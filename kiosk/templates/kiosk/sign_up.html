@@ -5,41 +5,41 @@
 
 <h1 class="sign_up_title">SIGN UP</h1>
 
-<form class="sign_up_form">
+<form method="POST" class="sign_up_form">
+    {% csrf_token %}
     <div class="mb-3">
         <label for="id" class="id">Id</label>
         <div class="row">
             <div class="col-8">
-                <input type="text" class="form-control" id="id" aria-describedby="idHelp">
+                <input type="text" class="form-control" id="id" name="username" aria-describedby="idHelp">
             </div>
             <div class="col-4">
                 <a class="btn btn-primary overlap_btn" href="#" role="button">중복확인</a>
             </div>
         </div>
-      
     </div>
     <div class="mb-3">
       <label for="Password1" class="password1">Password</label>
-      <input type="password" class="form-control" id="Password1">
+      <input type="password" class="form-control" id="Password1" name="password1">
     </div>
     <div class="mb-3">
         <!-- 비밀번호 확인 js 작성해야됨 -->
         <label for="Password2" class="password2">Password 확인</label>
-        <input type="password" class="form-control" id="Password2">
+        <input type="password" class="form-control" id="Password2" name="password2">
     </div>
     <div class="mb-3">
         <label for="storeName" class="storeName">가게 이름</label>
-        <input type="text" class="form-control" id="storeName">
+        <input type="text" class="form-control" id="storeName" name="lastname">
     </div>
     <div class="mb-3">
         <label for="phoneNumber" class="phoneNumber">전화번호</label>
-        <input type="number" class="form-control" id="phoneNumber">
+        <input type="number" class="form-control" id="phoneNumber" name="phone">
     </div>
 
     <hr>
 
-    <button type="submit" class="btn btn-primary form-control submit_btn"><h5>SIGN UP</h5></button>
-  </form>
+     <button type="submit" class="btn btn-primary form-control submit_btn"><h5>SIGN UP</h5></button>
+</form>
 
 
 {% endblock %}

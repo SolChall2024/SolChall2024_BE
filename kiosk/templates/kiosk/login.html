@@ -6,24 +6,25 @@
 
 <h1 class="login_title">SIGN IN</h1>
 
-<form class="login_form">
+<form class="login_form" method="post">
+    {% csrf_token %}
     <div class="mb-3">
-      <label for="id" class="id">Id</label>
-      <input type="text" class="form-control" id="id" aria-describedby="idHelp">
+        <label for="username" class="id">Id</label>
+        <input type="text" class="form-control" id="id" name="id" aria-describedby="idHelp">
     </div>
     <div class="mb-3">
-      <label for="Password" class="password">Password</label>
-      <input type="password" class="form-control" id="Password">
+        <label for="password" class="password">Password</label>
+        <input type="password" class="form-control" id="password" name="password">
     </div>
 
     <hr>
 
     <button type="submit" class="btn btn-primary form-control submit_btn"><h5>SIGN IN</h5></button>
-  </form>
-  
+</form>
+
   <div class="url_area">
     <div class="url_label">아직 계정이 없으신가요?</div>
-    <a href="" class="url_link">회원가입하러 가기</a>
+    <a href="{% url 'signup' %}" class="url_link">회원가입하러 가기</a>
   </div>
 
 

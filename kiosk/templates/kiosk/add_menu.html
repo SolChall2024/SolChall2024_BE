@@ -1,49 +1,376 @@
-{% load static %}
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+{% extends 'kiosk/base.html' %}
 
-    <link href="{% static 'kiosk/css/add.css' %}" rel="stylesheet" type="text/css">
-    <!-- 부트스트랩 CSS CDN -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-</head>
-<body>
-    <div class="top_area">
-    <input type="file" class="real-upload" accept="image/*" style="display: none;">
-    <div class="upload"></div>
-
-    <div class="top_input_box">
-        <input type="text" class="set_name_box" id="set_name" value="메뉴 이름 설정">
-    </div>
+{% block main_area %}
+<h2>메뉴 추가</h2>
+<form method="post" enctype="multipart/form-data" id="menu_form">
+    {% csrf_token %}
+    <!-- 파일 첨부 및 이미지 미리보기 부분 -->
+    <div id="image-container" onclick="openImageInput()" style="background-color: #D9D9D9; width: 100%; height: 300px; display: flex; justify-content: center; align-items: center; overflow: hidden; position: relative; border-radius: 14px;">
+        <!-- 이미지를 파일로 업로드할 때 미리보기를 표시할 요소 -->
+        <img id="uploaded-image" src="" style="width: auto; height: 100%; display: none; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);">
+        <!-- 이미지를 URL로 불러올 때 표시할 텍스트 -->
+        <span id="attach-image-text" style="position: absolute;">이미지를 첨부하세요</span>
+        <!-- 이미지를 파일로 업로드할 때 사용할 input 요소 -->
+        <input type="file" id="id_menuImg" name="menuImg" accept="image/*" style="display: none;">
     </div>
 
-    <div class="bottom_area container">
-        <hr id="drag_bar">
-        <div class="row">
-            <div class="col text-center">
-                <button type="button" class="btn btn-secondary btn-lg" disabled>가격</button>
-            </div>
-            <div class="col text-center">
-                <input type="text" id="price" value="가격을 입력하세요">
-            </div>
+    <!-- 메뉴 이름 -->
+    <div class="option_threeButtons" style="display: flex; justify-content: space-around; align-items: center; margin-top: 30px;">
+        <button type="button" disabled style="border: 0px; border-radius: 15px; font-size: 20px; padding: 10px 30px; background-color: #D9D9D9;">이름</button>
+
+        <input type="text" id="id_name" name="name" style="border: 0px; border-radius: 15px; font-size: 20px; padding: 10px 10px; background-color: #D9D9D9;" placeholder="이름을 입력하세요"><br>
+    </div>
+    <!-- 메뉴 ID를 자동으로 설정하는 hidden 필드 추가 -->
+    <input type="hidden" id="menu_id" name="menu_id" value="{{ menu_id }}">
+
+    <!-- 메뉴 가격 -->
+    <div class="option_threeButtons" style="display: flex; justify-content: space-around; align-items: center; margin-top: 30px;">
+        <button type="button" disabled style="border: 0px; border-radius: 15px; font-size: 20px; padding: 10px 30px; background-color: #D9D9D9;">가격</button>
+        <input type="text" id="id_price" name="price" <input type="text" id="id_price" name="price" style="border: 0px; border-radius: 15px; font-size: 20px; padding: 10px 10px; background-color: #D9D9D9;" placeholder="가격을 입력하세요"><br><br>
+    </div>
+    <!-- 메뉴 카테고리 -->
+    <div class="option_threeButtons" style="display: flex; justify-content: space-around; align-items: center; margin-top: 30px;">
+        <button type="button" disabled style="border: 0px; border-radius: 15px; font-size: 20px; padding: 10px 20px; background-color: #D9D9D9;">Category</button>
+        <select id="id_category" name="category" style="border: 0px; border-radius: 15px; font-size: 20px; padding: 10px 17px; background-color: #D9D9D9;">
+            <!-- 기본 옵션: 선택되지 않음 -->
+            <option value="" selected disabled>Select a category</option>
+            <!-- 기존 카테고리 옵션 -->
+            {% for category in categories %}
+                <option value="{{ category.categoryId }}">{{ category.name }}</option>
+            {% endfor %}
+            <!-- 추가 버튼 -->
+            <option value="add_new_category">Add New Category</option>
+        </select>
+    </div><br>
+    <!-- 추가 항목을 선택한 경우에만 표시되는 입력 필드 -->
+    <div id="new_category_input" style="display: none;">
+        <label for="id_new_category">New Category:</label><br>
+        <input type="text" id="id_new_category" name="new_category"><br>
+    </div>
+    <!-- Option 입력 필드와 라디오 버튼을 한 줄에 나란히 배치 -->
+<div style="display: flex; align-items: center;">
+    <!-- Option 입력 필드 -->
+    <div style="flex: 1;">
+        <input type="text" id="id_option" name="option" style="border: 0px; border-radius: 15px; font-size: 20px; padding: 10px 20px; background-color: #D9D9D9;" placeholder="옵션 이름을 입력하세요">
+    </div>
+
+    <!-- 라디오 버튼: 버튼 추가 형식 -->
+    <div style="flex: 1; margin-left: 20px;">
+        <input type="radio" id="button_option" name="option_type" value="button" style="display: inline-block;">
+        <label for="button_option">Button</label>
+    </div>
+
+    <!-- 라디오 버튼: 숫자 추가 형식 -->
+    <div style="flex: 1; margin-left: 20px;">
+        <input type="radio" id="number_option" name="option_type" value="number" style="display: inline-block;">
+        <label for="number_option">Number</label>
+    </div>
+
+    <!-- Option 추가 버튼 -->
+    <button type="button" id="add_option_button" style="margin-left: auto;">Add Option</button>
+</div>
+
+<br>
+
+
+    <!-- 버튼 라디오 버튼 선택 시 추가되는 필드 -->
+    <div id="button_option_fields" style="display: none;">
+        <!-- Option Content 입력 필드 -->
+        <div style="flex: 1;">
+            <label for="id_option_content">Option Content:</label>
+            <input type="text" id="id_option_content" name="content">
         </div>
+        <!-- Option Price 입력 필드 -->
+        <div style="flex: 1; margin-left: 20px;">
+            <label for="id_option_price">Option Price:</label>
+            <input type="text" id="id_option_price" name="option_price">
+        </div>
+        <!-- Add Content 버튼 -->
+        <button type="button" id="add_content_button" style="margin-left: 20px;">Add Content</button>
     </div>
+    <!-- 넘버 라디오 버튼 선택 시 추가되는 필드 -->
+    <div id="number_option_fields" style="display: none;">
+        <!-- Option Price 입력 필드 -->
+        <div style="flex: 1;" id="number_option_price_field">
+            <label for="id_option_price">Option Price:</label>
+            <input type="text" id="id_option_price" name="option_price">
+        </div>
+        <!-- Delete 버튼 -->
+        <button type="button" id="delete_price_button" style="margin-left: 20px;">Delete Price</button>
+    </div>
+    <!-- 메뉴 저장 버튼 -->
+    <button type="submit" id="submit_btn">Submit</button><br>
+</form>
+{% endblock %}
+
+{% block script %}
+<script>
+    // 이미지 입력 요소 열기
+    function openImageInput() {
+        document.getElementById('id_menuImg').click();
+    }
+
+// Option 입력 필드의 값을 정수로 변환하여 menu_id 필드에 설정하는 함수
+function updateOptionId() {
+    var optionName = document.getElementById('id_option').value;
+    var optionId = parseInt(optionName); // 입력값을 정수로 변환
+    // 정수로 변환 가능한지 확인 후, 가능하다면 정수값으로 설정, 불가능하다면 기본값(-1)으로 설정
+    if (!isNaN(optionId)) {
+        document.getElementById('menu_id').value = optionId;
+    } else {
+        document.getElementById('menu_id').value = -1;
+    }
+}
 
 
+    document.addEventListener("DOMContentLoaded", function() {
+        // 이미지 입력 요소 변경 감지
+        document.getElementById('id_menuImg').addEventListener('change', function() {
+            var input = this;
+            var imagePreview = document.getElementById('uploaded-image');
+            var imageContainer = document.getElementById('image-container');
+            var imagePlaceholder = document.getElementById('attach-image-text');
+
+            if (input.files && input.files[0]) {
+                var reader = new FileReader();
+                reader.onload = function(e) {
+                    imageContainer.style.backgroundImage = "url('" + e.target.result + "')";
+                    if (imagePreview) {
+                        imagePreview.src = e.target.result;
+                        imagePreview.style.display = 'block';
+                    }
+                    if (imagePlaceholder) {
+                        imagePlaceholder.style.display = 'none';
+                    }
+                }
+                reader.readAsDataURL(input.files[0]);
+            }
+        });
 
 
+        document.getElementById('id_category').addEventListener('change', function() {
+            var category = this.value;
+            console.log("Selected category ID:", category); // 로그 출력
 
+            if (category === 'add_new_category') {
+                document.getElementById('new_category_input').style.display = 'block';
+            } else {
+                document.getElementById('new_category_input').style.display = 'none';
+            }
+        });
 
+        var buttonOptionFields = document.getElementById('button_option_fields');
+        var numberOptionFields = document.getElementById('number_option_fields');
+        var addOptionButton = document.getElementById('add_option_button');
+        var addContentButton = document.getElementById('add_content_button');
+        var deletePriceButton = document.getElementById('delete_price_button');
 
-    <script>
-        const realUpload = document.querySelector('.real-upload');
-        const upload = document.querySelector('.upload');
+        // 라디오 버튼 변경 이벤트 처리
+        document.querySelectorAll('input[name="option_type"]').forEach(function(radioButton) {
+            radioButton.addEventListener('change', function() {
+                var optionFieldsWrapper = this.value === 'button' ? buttonOptionFields : numberOptionFields;
 
-        upload.addEventListener('click', () => realUpload.click());
-    </script>
-</body>
-</html>
+                if (this.value === 'button') {
+                    buttonOptionFields.style.display = 'flex';
+                    numberOptionFields.style.display = 'none';
+                    addContentButton.style.display = 'block';
+                } else {
+                    buttonOptionFields.style.display = 'none';
+                    numberOptionFields.style.display = 'flex';
+                    addContentButton.style.display = 'none'; // 수정된 부분: 숨기도록 수정
+                }
+
+                // 해당 라디오 버튼 아래에 필드들을 추가
+                optionFieldsWrapper.parentElement.insertBefore(optionFieldsWrapper, addOptionButton.parentElement.nextSibling);
+            });
+        });
+
+        addOptionButton.addEventListener('click', function() {
+            // 새로운 옵션을 감싸는 div 요소 생성
+            var newOptionWrapper = document.createElement('div');
+            newOptionWrapper.style.display = 'flex';
+            newOptionWrapper.style.alignItems = 'center';
+
+            // 옵션 이름 입력 필드 생성
+            var optionNameInput = document.createElement('input');
+            optionNameInput.type = 'text';
+            optionNameInput.name = 'option'; // 여기서 name 속성은 그룹 내에서의 고유한 식별자로 사용됩니다.
+            optionNameInput.placeholder = 'Option Name';
+            newOptionWrapper.appendChild(optionNameInput);
+
+            // 버튼 라디오 버튼 생성
+            var buttonOption = document.createElement('input');
+            buttonOption.type = 'radio';
+            buttonOption.name = 'option_type_' + Date.now(); // 고유한 그룹 이름 생성
+            buttonOption.value = 'button';
+            buttonOption.addEventListener('click', function() {
+                // 버튼 라디오 버튼을 클릭했을 때 새로운 입력 필드들 추가
+                var optionContentInput = document.createElement('div');
+                optionContentInput.style.marginRight = '20px'; // 간격 조정
+                optionContentInput.innerHTML = `
+                    <label for="id_option_content">Option Content:</label>
+                    <input type="text" id="id_option_content" name="content" style="display: inline-block;">
+                `;
+                newOptionWrapper.appendChild(optionContentInput);
+
+                var optionPriceInput = document.createElement('div');
+                optionPriceInput.style.marginRight = '20px'; // 간격 조정
+                optionPriceInput.innerHTML = `
+                    <label for="id_option_price">Option Price:</label>
+                    <input type="text" id="id_option_price" name="option_price" style="display: inline-block;">
+                `;
+                newOptionWrapper.appendChild(optionPriceInput);
+
+                var addContentButton = document.createElement('button');
+                addContentButton.type = 'button';
+                addContentButton.innerHTML = 'Add Content';
+                addContentButton.style.marginRight = '20px'; // 간격 조정
+                addContentButton.addEventListener('click', function() {
+                    var optionContentInput = document.createElement('div');
+                    optionContentInput.style.display = 'flex';
+                    optionContentInput.style.alignItems = 'center';
+                    optionContentInput.style.marginRight = '20px'; // 간격 조정
+
+                    var optionContentInputLabel = document.createElement('label');
+                    optionContentInputLabel.innerHTML = 'Option Content:';
+                    optionContentInput.appendChild(optionContentInputLabel);
+
+                    var optionContentInputField = document.createElement('input');
+                    optionContentInputField.type = 'text';
+                    optionContentInputField.name = 'content';
+                    optionContentInputField.style.marginRight = '10px'; // 간격 조정
+                    optionContentInput.appendChild(optionContentInputField);
+
+                    var optionPriceInputLabel = document.createElement('label');
+                    optionPriceInputLabel.innerHTML = 'Option Price:';
+                    optionContentInput.appendChild(optionPriceInputLabel);
+
+                    var optionPriceInputField = document.createElement('input');
+                    optionPriceInputField.type = 'text';
+                    optionPriceInputField.name = 'option_price';
+                    optionContentInput.appendChild(optionPriceInputField);
+
+                    var deleteContentButton = document.createElement('button');
+                    deleteContentButton.type = 'button';
+                    deleteContentButton.innerHTML = 'Delete Content';
+                    deleteContentButton.style.marginLeft = '10px'; // 간격 조정
+                    deleteContentButton.addEventListener('click', function() {
+                        optionContentInput.style.display = 'none'; // 숨김 처리
+                    });
+                    optionContentInput.appendChild(deleteContentButton);
+
+                    newOptionWrapper.appendChild(optionContentInput);
+                });
+                newOptionWrapper.appendChild(addContentButton);
+            });
+            newOptionWrapper.appendChild(buttonOption);
+
+            var buttonOptionLabel = document.createElement('label');
+            buttonOptionLabel.innerHTML = 'Button';
+            newOptionWrapper.appendChild(buttonOptionLabel);
+
+            // 숫자 라디오 버튼 생성
+            var numberOption = document.createElement('input');
+            numberOption.type = 'radio';
+            numberOption.name = 'option_type_' + Date.now(); // 고유한 그룹 이름 생성
+            numberOption.value = 'number';
+            numberOption.addEventListener('click', function() {
+                // 숫자 라디오 버튼을 클릭했을 때 숫자 관련 필드들을 보이도록 설정
+                var optionPriceInput = document.createElement('div');
+                optionPriceInput.style.flex = '1'; // flex 속성 추가
+                optionPriceInput.style.marginRight = '20px'; // 간격 조정
+                optionPriceInput.innerHTML = `
+                    <label for="id_option_price">Option Price:</label>
+                    <input type="text" id="id_option_price" name="option_price" style="display: inline-block;">
+                `;
+                newOptionWrapper.appendChild(optionPriceInput);
+
+                var deletePriceButton = document.createElement('button');
+                deletePriceButton.type = 'button';
+                deletePriceButton.innerHTML = 'Delete Price';
+                deletePriceButton.style.marginLeft = '20px'; // 간격 조정
+                deletePriceButton.addEventListener('click', function() {
+                    optionPriceInput.style.display = 'none'; // 숨김 처리
+                    deletePriceButton.style.display = 'none'; // 삭제 버튼도 숨김 처리
+                });
+                newOptionWrapper.appendChild(deletePriceButton);
+            });
+            newOptionWrapper.appendChild(numberOption);
+
+            var numberOptionLabel = document.createElement('label');
+            numberOptionLabel.innerHTML = 'Number';
+            newOptionWrapper.appendChild(numberOptionLabel);
+
+            // Delete Option 버튼 생성
+            var deleteOptionButton = document.createElement('button');
+            deleteOptionButton.type = 'button';
+            deleteOptionButton.innerHTML = 'Delete Option';
+            deleteOptionButton.addEventListener('click', function() {
+                newOptionWrapper.remove(); // 해당 옵션을 삭제
+            });
+            newOptionWrapper.appendChild(deleteOptionButton);
+
+            // 새로운 옵션을 Add Option 버튼 위에 추가
+            var submitBtn = document.getElementById('submit_btn');
+            submitBtn.parentElement.insertBefore(newOptionWrapper, submitBtn);
+        });
+
+        // Add Content 버튼 클릭 이벤트 설정
+        addContentButton.addEventListener('click', function() {
+            // Option Content 입력 필드 생성
+            var optionContentInput = document.createElement('div');
+            optionContentInput.innerHTML = `
+                <label for="id_option_content">Option Content:</label>
+                <input type="text" id="id_option_content" name="content" style="display: inline-block;">
+            `;
+
+            // Option Price 입력 필드 생성
+            var optionPriceInput = document.createElement('div');
+            optionPriceInput.innerHTML = `
+                <label for="id_option_price">Option Price:</label>
+                <input type="text" id="id_option_price" name="option_price" style="display: inline-block;">
+            `;
+
+            // Delete 버튼 생성
+            var deleteContentButton = document.createElement('button');
+            deleteContentButton.innerHTML = 'Delete Content';
+            deleteContentButton.type = 'button';
+            deleteContentButton.style.marginLeft = '20px'; // Delete 버튼 사이의 간격 조정
+
+            // Delete 버튼 클릭 이벤트 설정
+            deleteContentButton.addEventListener('click', function() {
+                // Option Content 입력 필드, Option Price 입력 필드, 삭제 버튼을 감싸는 div 요소 삭제
+                optionContentInputWrapper.remove();
+            });
+
+            // Option Content 입력 필드, Option Price 입력 필드, 삭제 버튼을 감싸는 div 요소 생성
+            var optionContentInputWrapper = document.createElement('div');
+            optionContentInputWrapper.style.display = 'flex';
+            optionContentInputWrapper.style.alignItems = 'center';
+            optionContentInputWrapper.appendChild(optionContentInput);
+            optionContentInputWrapper.appendChild(optionPriceInput);
+            optionContentInputWrapper.appendChild(deleteContentButton);
+
+            // Add Content 버튼 바로 아래에 Option Content 입력 필드, Option Price 입력 필드, 삭제 버튼을 추가
+            var addContentButton = document.getElementById('add_content_button');
+            addContentButton.parentElement.insertBefore(optionContentInputWrapper, addContentButton.nextSibling);
+        });
+
+        deletePriceButton.addEventListener('click', function() {
+            // Option Price 입력 필드와 Delete 버튼을 감싸는 div 요소를 숨김
+            var numberOptionFields = document.getElementById('number_option_fields');
+            numberOptionFields.style.display = 'none';
+            // Delete Price 버튼도 숨김 처리
+            deletePriceButton.style.display = 'none';
+        });
+
+        // Delete Option 버튼이 여러 개일 때를 대비하여 삭제 이벤트를 모두 설정
+        document.querySelectorAll('#menu_form button[type="button"][id^="delete_option_button"]').forEach(function(button) {
+            button.addEventListener('click', function() {
+                // 옵션 입력 필드, 라디오 버튼들, Delete Option 버튼을 감싸는 div 요소 삭제
+                button.parentElement.remove();
+            });
+        });
+    });
+</script>
+{% endblock %}

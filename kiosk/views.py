@@ -1,11 +1,14 @@
 import os
-from django.shortcuts import render
-from django.shortcuts import get_object_or_404
-from django.shortcuts import render, get_object_or_404
+from django.contrib.auth import authenticate, logout, login
+from django.contrib import messages
+from django.contrib.auth.decorators import login_required
+from django.shortcuts import render, get_object_or_404, redirect
 from django.views.decorators.csrf import csrf_exempt
 from django.http import HttpResponse
 from django.core.paginator import Paginator
 from django.http import JsonResponse
+
+from .forms import RegisterForm, LoginForm, MenuForm, OptionForm, OptionContentForm
 from .models import Store, Menu, Option, OptionContent, Cart, Order, Category
 from django.db.models import Sum
 from google.cloud import speech_v1
@@ -14,6 +17,52 @@ from django.http import JsonResponse
 from django.conf import settings
 from random import choice
 from django.http import JsonResponse
+import json
+
+
+
+def signup(request):
+    if request.method == 'POST':
+        form = RegisterForm(request.POST)
+        if form.is_valid():
+            # 아이디 중복 확인
+            username = form.cleaned_data['username']
+            if Store.objects.filter(username=username).exists():
+                messages.error(request, '이미 사용 중인 아이디입니다.')
+            else:
+                user = form.save(commit=False)
+                user.set_password(form.cleaned_data['password2'])  # 비밀번호 설정 부분 수정
+                user.save()
+                # 회원가입 후 자동으로 로그인
+                login(request, user)
+                print("회원가입이 성공적으로 완료되었습니다.")
+                return redirect('/login')  # 로그인 후 메뉴 페이지로 이동
+    else:
+        form = RegisterForm()
+    return render(request, 'kiosk/sign_up.html', {'form': form})
+
+
+def user_login(request):
+    if request.method == 'POST':
+        form = LoginForm(request.POST)
+        if form.is_valid():
+            username = form.cleaned_data['id']
+            password = form.cleaned_data['password']
+            user = authenticate(request, username=username, password=password)
+            if user is not None:
+                login(request, user)
+                return redirect('/menu')
+            else:
+                messages.error(request, 'Invalid username or password.')
+    else:
+        form = LoginForm()
+    return render(request, 'kiosk/login.html', {'form': form})
+
+
+def user_logout(request):
+    logout(request)  # 현재 사용자 세션 종료
+    return redirect('/login')
+
 
 
 # Create your views here.
@@ -98,12 +147,15 @@ def convert_speech_to_text(request):
 
 def get_menu_id(request):
     if request.method == 'POST':
-        transcription = request.POST.get('transcription', '')
+        data = json.loads(request.body)
+        transcription = data.get('transcription', '').replace(" ", "")
+        print(f'Transcription received: {transcription}')
         # Search for the Menu object based on the recognized text
         try:
-            menus = Menu.objects.filter(name__icontains=transcription)
+            menus = Menu.objects.filter(name=transcription)
             if menus.exists():
-                menu_ids = [menu.pk for menu in menus]
+                menu_ids = menus.first().pk
+                print(menu_ids)
                 return JsonResponse({'menu_ids': menu_ids})
             else:
                 return JsonResponse({'error': 'Menu not found'}, status=404)
@@ -130,12 +182,17 @@ def cart(request):
 )
 
 def pay(request):
+    carts = Cart.objects.all()
+    total_price = 0
+
+    for c in carts:
+        total_price += c.price
 
     return render(
     request,
     'kiosk/pay.html',
     {
-
+        'total_price': total_price
     }
 )
 
@@ -177,48 +234,94 @@ def delete(request):
 
 
 
-# test
-def login(request):
+def menu(request):
+    if request.user.is_authenticated:
+        store_name = request.user.last_name  # 로그인한 사용자의 가게 이름을 가져옵니다.
 
-    return render(
-    request,
-    'kiosk/login.html',
-    {
-    }
-)
+        # 현재 사용자의 가게에 해당하는 카테고리를 가져옵니다.
+        categories = Category.objects.filter(menu__storeId=request.user.id).distinct()
 
-def signup(request):
+        # 요청 쿼리 매개변수에서 선택한 카테고리를 가져옵니다.
+        selected_category_id = request.GET.get('category')
 
-    return render(
-    request,
-    'kiosk/sign_up.html',
-    {
-    }
-)
+        # 선택한 카테고리가 없거나 선택한 카테고리가 사용자의 가게에 속하지 않는 경우, 첫 번째 카테고리를 선택합니다.
+        if not selected_category_id or not categories.filter(categoryId=selected_category_id).exists():
+            selected_category = categories.first()
+        else:
+            selected_category = categories.get(categoryId=selected_category_id)
 
-def admin_menu(request):
+        # 현재 사용자의 가게에 대해 카테고리별로 메뉴를 가져옵니다.
+        menu_by_category = {}
+        for category in categories:
+            drinks = Menu.objects.filter(storeId=request.user.id, categoryId=category)
+            menu_by_category[category] = drinks
+
+        context = {
+            'store_name': store_name,
+            'menu_by_category': menu_by_category,
+            'selected_category': selected_category,
+            'categories': categories,  # 템플릿에서 카테고리 목록을 사용할 수 있도록 추가합니다.
+        }
+    else:
+        context = {}
+    return render(request, 'kiosk/menu.html', context)
+
+
+@login_required
+def add_menu(request):
     categories = Category.objects.all()
-    menus = Menu.objects.all()
+    options = Option.objects.all()  # 모든 옵션 목록을 가져옴
 
-    return render(
-    request,
-    'kiosk/menu.html',
-    {
-        'categories' : categories,
-        'menus' : menus
-    }
-)
+    if request.method == 'POST':
+        menu_form = MenuForm(request.POST, request.FILES)
+        option_content_form = OptionContentForm(request.POST)
 
-def add(request):
-    categories = Category.objects.all()
+        if menu_form.is_valid() and option_content_form.is_valid():
+            menu = menu_form.save(commit=False)
+            menu.storeId_id = request.user.id
 
-    return render(
-    request,
-    'kiosk/add_menu.html',
-    {
-        'categories' : categories,
-    }
-)
+            category_id = request.POST.get('category')
+            if category_id and category_id != "add_new_category":
+                menu.categoryId_id = category_id
+            else:
+                new_category_name = request.POST.get('new_category')
+                if new_category_name:
+                    category = Category.objects.create(name=new_category_name)
+                    menu.categoryId = category
+
+            menu.save()
+
+            option_content = option_content_form.save(commit=False)
+            option_content.save()
+
+            # 사용자가 선택한 옵션을 가져옴
+            selected_option_id = request.POST.get('option')
+            if selected_option_id and selected_option_id != "add_new_option":
+                # 옵션의 ID를 정수형으로 변환하여 가져오기
+                selected_option_id = int(selected_option_id)
+                selected_option = Option.objects.get(pk=selected_option_id)
+                selected_option.menuId.add(menu)  # 해당 옵션과 메뉴를 연결함
+
+            # 새로운 옵션을 추가하는 경우
+            else:
+                new_option_name = request.POST.get('new_option')
+                if new_option_name:
+                    new_option = Option.objects.create(option=new_option_name, price=0)
+                    new_option.menuId.add(menu)
+
+            return redirect('/menu')
+
+    else:
+        menu_form = MenuForm()
+        option_content_form = OptionContentForm()
+
+    return render(request, 'kiosk/add_menu.html',
+                  {'menu_form': menu_form, 'option_content_form': option_content_form,
+                   'categories': categories, 'options': options})
+
+
+
+
 def add_to_cart(request):
     if request.method == 'POST':
         menu_id = request.POST.get('menu_id')
